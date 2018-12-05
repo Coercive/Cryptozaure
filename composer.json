@@ -21,7 +21,7 @@
     },
     "require-dev": {},
     "autoload": {
-        "psr-4": { "Coercive\\Utility\\Cryptozaure\\": "dist/" }
+        "psr-4": { "Coercive\\Security\\Cryptozaure\\": "dist/" }
     },
     "minimum-stability" : "dev",
     "extra": {
