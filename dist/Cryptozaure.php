@@ -10,7 +10,7 @@ use Coercive\Utility\Iterator\MbStrIterator;
  * @link		https://github.com/Coercive/Cryptozaure
  *
  * @author  	Anthony Moral <contact@coercive.fr>
- * @copyright   (c) 2019 Anthony Moral
+ * @copyright   (c) 2020 Anthony Moral
  * @license 	MIT
  */
 class Cryptozaure
@@ -39,6 +39,36 @@ class Cryptozaure
 	}
 
 	/**
+	 * XOR mix characters
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	private function xor(string $str): string
+	{
+		for($i = 0; $i < strlen($str); $i++){
+			$str[$i] = ~ $str[$i];
+		}
+		$str = base64_encode($str);
+		return $str;
+	}
+
+	/**
+	 * XOR un-mix characters
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	private function rox(string $str): string
+	{
+		$str = (string) base64_decode($str);
+		for($i = 0; $i < strlen($str); $i++){
+			$str[$i] = ~ $str[$i];
+		}
+		return $str;
+	}
+
+	/**
 	 * Cryptozaure constructor.
 	 *
 	 * @param string $raw
@@ -61,7 +91,8 @@ class Cryptozaure
 	public function encrypt(): string
 	{
 		$output = '';
-		foreach (new MbStrIterator($this->raw) as $chr) {
+		$mix = $this->xor($this->raw);
+		foreach (new MbStrIterator($mix) as $chr) {
 			$output .= $this->hash($chr);
 		}
 		return $output;
@@ -89,6 +120,7 @@ class Cryptozaure
 		foreach (str_split($this->raw, $length) as $str) {
 			$output .= $stack[$str] ?? '▮';
 		}
-		return $output;
+		$mix = $this->rox($output);
+		return $mix;
 	}
 }
