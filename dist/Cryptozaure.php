@@ -46,7 +46,7 @@ class Cryptozaure
 	 */
 	private function xor(string $str): string
 	{
-		for($i = 0; $i < mb_strlen($str); $i++){
+		for($i = 0; $i < strlen($str); $i++){
 			$str[$i] = ~ $str[$i];
 		}
 		$str = base64_encode($str);
@@ -62,7 +62,7 @@ class Cryptozaure
 	private function rox(string $str): string
 	{
 		$str = (string) base64_decode($str);
-		for($i = 0; $i < mb_strlen($str); $i++){
+		for($i = 0; $i < strlen($str); $i++){
 			$str[$i] = ~ $str[$i];
 		}
 		return $str;
@@ -116,7 +116,7 @@ class Cryptozaure
 
 		# Prepare plain text
 		$output = '';
-		$length = mb_strlen($this->hash('x'));
+		$length = strlen($this->hash('x'));
 		foreach (str_split($this->raw, $length) as $str) {
 			$output .= $stack[$str] ?? '▮';
 		}
