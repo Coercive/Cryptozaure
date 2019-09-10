@@ -88,11 +88,11 @@ class Cryptozaure
 	 * Cryptozaure constructor.
 	 *
 	 * @param string $raw
-	 * @param string $key
+	 * @param string $key [optional]
 	 * @param string $prefix [optional]
 	 * @return void
 	 */
-	public function __construct(string $raw, string $key, string $prefix = '')
+	public function __construct(string $raw, string $key = '', string $prefix = '')
 	{
 		$this->raw = $raw;
 		$this->key = $key;
