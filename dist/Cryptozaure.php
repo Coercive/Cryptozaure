@@ -18,8 +18,14 @@ class Cryptozaure
 	/** @var int Default maximum iteration char */
 	const MAX = 70000;
 
+	/** @var int Salt length */
+	const SALT = 128;
+
 	/** @var string Raw input content */
 	private $raw = '';
+
+	/** @var string Salt */
+	private $salt = '';
 
 	/** @var string Password key for en/decode */
 	private $key = '';
@@ -35,7 +41,17 @@ class Cryptozaure
 	 */
 	private function hash(string $chr): string
 	{
-		return hash('sha512', $this->prefix.$chr.$this->key);
+		return hash('sha512', $this->prefix.$chr.$this->key.$this->salt);
+	}
+
+	/**
+	 * OpenSsl random pseudo bytes
+	 *
+	 * @return string
+	 */
+	private function salt(): string
+	{
+		return bin2hex(openssl_random_pseudo_bytes(self::SALT));
 	}
 
 	/**
@@ -81,6 +97,7 @@ class Cryptozaure
 		$this->raw = $raw;
 		$this->key = $key;
 		$this->prefix = $prefix;
+		$this->salt = $this->salt();
 	}
 
 	/**
@@ -95,7 +112,7 @@ class Cryptozaure
 		foreach (new MbStrIterator($mix) as $chr) {
 			$output .= $this->hash($chr);
 		}
-		return $output;
+		return $this->salt . $output;
 	}
 
 	/**
@@ -106,10 +123,14 @@ class Cryptozaure
 	 */
 	public function decrypt(int $max = self::MAX): string
 	{
+		# Prepare salt
+		$this->salt = substr($this->raw, 0, 2*self::SALT);
+		$raw = substr($this->raw, 2*self::SALT);
+
 		# Prepare stack
 		$stack = [];
 		for($i=0; $i <= $max; $i++) {
-			$convmap = array(0x0, 0x10000, 0, 0xfffff);
+			$convmap = [0x0, 0x10000, 0, 0xfffff];
 			$chr = mb_decode_numericentity("&#$i;", $convmap, 'UTF-8');
 			$stack[$this->hash($chr)] = $chr;
 		}
@@ -117,7 +138,7 @@ class Cryptozaure
 		# Prepare plain text
 		$output = '';
 		$length = strlen($this->hash('x'));
-		foreach (str_split($this->raw, $length) as $str) {
+		foreach (str_split($raw, $length) as $str) {
 			$output .= $stack[$str] ?? '▮';
 		}
 		$mix = $this->rox($output);
